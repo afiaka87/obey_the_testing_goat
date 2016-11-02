@@ -1,18 +1,27 @@
+import os
+
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 import unittest
 
 
 class NewVisitorTest(unittest.TestCase):
     def setUp(self):
         capabilities = DesiredCapabilities.FIREFOX
-        capabilities['marionette'] = False
-        self.browser = webdriver.Firefox(capabilities=capabilities)
-        self.browser.implicitly_wait(10)
+        capabilities['marionette'] = True
+        self.log = open('fire_log.txt', 'w')
+        binary = FirefoxBinary(log_file=self.log)
+        self.browser = webdriver.Firefox(capabilities=capabilities, firefox_binary=binary)
 
     def tearDown(self):
         self.browser.quit()
+        self.log.close()
 
     def check_for_row_in_list_table(self, row_text):
         table = self.browser.find_element_by_id('id_list_table')
@@ -40,6 +49,7 @@ class NewVisitorTest(unittest.TestCase):
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('Use peacock feathers to make a fly')
         inputbox.send_keys(Keys.ENTER)
+
 
         self.check_for_row_in_list_table('1: Buy peacock feathers')
         self.check_for_row_in_list_table('2: Use peacock feathers to make a fly')
